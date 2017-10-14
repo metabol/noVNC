@@ -256,8 +256,6 @@
 
             try {
                 rfb = new RFB({'target':       document.getElementById('noVNC_canvas'),
-                               'encrypt':      WebUtil.getConfigVar('encrypt',
-                                        (window.location.protocol === "https:")),
                                'repeaterID':   WebUtil.getConfigVar('repeaterID', ''),
                                'local_cursor': WebUtil.getConfigVar('cursor', true),
                                'shared':       WebUtil.getConfigVar('shared', true),
@@ -273,7 +271,22 @@
                 return; // don't continue trying to connect
             }
 
-            rfb.connect(host, port, { password: password }, path);
+            var url;
+
+            if (WebUtil.getConfigVar('encrypt',
+                                     (window.location.protocol === "https:"))) {
+                url = 'wss';
+            } else {
+                url = 'ws';
+            }
+
+            url += '://' + host;
+            if(port) {
+                url += ':' + port;
+            }
+            url += '/' + path;
+
+            rfb.connect(url, { password: password });
         })();
     </script>
 </head>
