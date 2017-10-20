@@ -270,6 +270,8 @@ RFB.prototype = {
     get viewport() { return this._display.viewport; },
     set viewport(viewport) { this._display.viewport = viewport; },
 
+    get isClipped() { return this._display.isClipped; },
+
     // ===== EVENT HANDLERS =====
 
     onupdatestate: function () {},  // onupdatestate(rfb, state, oldstate): connection state change
@@ -380,11 +382,6 @@ RFB.prototype = {
     viewportChangeSize: function(width, height) {
         if (this._rfb_connection_state !== 'connected') { return; }
         this._display.viewportChangeSize(width, height);
-    },
-
-    clippingDisplay: function () {
-        if (this._rfb_connection_state !== 'connected') { return false; }
-        return this._display.clippingDisplay();
     },
 
     // Requests a change of remote desktop size. This message is an extension
