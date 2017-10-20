@@ -300,7 +300,6 @@ RFB.prototype = {
 
         this._rfb_init_state = '';
         this._updateConnectionState('connecting');
-        return true;
     },
 
     disconnect: function () {
@@ -316,7 +315,7 @@ RFB.prototype = {
     },
 
     sendCtrlAltDel: function () {
-        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return false; }
+        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
         Log.Info("Sending Ctrl-Alt-Del");
 
         this.sendKey(KeyTable.XK_Control_L, "ControlLeft", true);
@@ -325,8 +324,6 @@ RFB.prototype = {
         this.sendKey(KeyTable.XK_Delete, "Delete", false);
         this.sendKey(KeyTable.XK_Alt_L, "AltLeft", false);
         this.sendKey(KeyTable.XK_Control_L, "ControlLeft", false);
-
-        return true;
     },
 
     machineShutdown: function () {
@@ -344,12 +341,12 @@ RFB.prototype = {
     // Send a key press. If 'down' is not specified then send a down key
     // followed by an up key.
     sendKey: function (keysym, code, down) {
-        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return false; }
+        if (this._rfb_connection_state !== 'connected' || this._viewOnly) { return; }
 
         if (down === undefined) {
             this.sendKey(keysym, code, true);
             this.sendKey(keysym, code, false);
-            return true;
+            return;
         }
 
         var scancode = XtScancode[code];
@@ -363,13 +360,11 @@ RFB.prototype = {
             RFB.messages.QEMUExtendedKeyEvent(this._sock, keysym, down, scancode);
         } else {
             if (!keysym) {
-                return false;
+                return;
             }
             Log.Info("Sending keysym (" + (down ? "down" : "up") + "): " + keysym);
             RFB.messages.keyEvent(this._sock, keysym, down ? 1 : 0);
         }
-
-        return true;
     },
 
     clipboardPasteFrom: function (text) {
@@ -397,17 +392,15 @@ RFB.prototype = {
     requestDesktopSize: function (width, height) {
         if (this._rfb_connection_state !== 'connected' ||
             this._viewOnly) {
-            return false;
+            return;
         }
 
-        if (this._supportsSetDesktopSize) {
-            RFB.messages.setDesktopSize(this._sock, width, height,
-                                        this._screen_id, this._screen_flags);
-            this._sock.flush();
-            return true;
-        } else {
-            return false;
+        if (!this._supportsSetDesktopSize) {
+            return;
         }
+
+        RFB.messages.setDesktopSize(this._sock, width, height,
+                                    this._screen_id, this._screen_flags);
     },
 
 
