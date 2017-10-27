@@ -590,11 +590,10 @@ RFB.prototype = {
      * Send a notification to the UI. Valid levels are:
      *   'normal'|'warn'|'error'
      *
-     *   NOTE: Options could be added in the future.
      *   NOTE: If this function is called multiple times, remember that the
      *         interface could be only showing the latest notification.
      */
-    _notification: function(msg, level, options) {
+    _notification: function(msg, level) {
         switch (level) {
             case 'normal':
             case 'warn':
@@ -606,11 +605,7 @@ RFB.prototype = {
                 return;
         }
 
-        if (options) {
-            this.onnotification(this, msg, level, options);
-        } else {
-            this.onnotification(this, msg, level);
-        }
+        this.onnotification(this, msg, level);
     },
 
     _setCapability: function (cap, val) {
